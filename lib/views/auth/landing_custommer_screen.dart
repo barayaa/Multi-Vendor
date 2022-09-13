@@ -1,4 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:multi_vendor/controllers/auth_controller.dart';
+
+import '../../controllers/snackbar_controller.dart';
 
 class LandingCustommerScreen extends StatefulWidget {
   const LandingCustommerScreen({Key? key}) : super(key: key);
@@ -8,10 +15,44 @@ class LandingCustommerScreen extends StatefulWidget {
 }
 
 class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
+  final _authController = AuthController();
   final TextEditingController fullnameController = new TextEditingController();
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
   bool passwordVisible = true;
+  bool isLoading = false;
+
+  Uint8List? _image;
+
+  void pickImageFormGallery() async {
+    Uint8List? im = await _authController.pickImage(ImageSource.gallery);
+    setState(() {
+      _image = im!;
+    });
+  }
+
+  void pickImageFormCamera() async {
+    Uint8List? im = await _authController.pickImage(ImageSource.camera);
+    setState(() {
+      _image = im!;
+    });
+  }
+
+  signUp() async {
+    setState(() {});
+    isLoading = true;
+    String res = await _authController.sigUpUsers(
+        fullnameController.text, emailController.text, passwordController.text);
+    setState(() {
+      isLoading = false;
+    });
+
+    if (res != 'success') {
+      return snackbar(res, context);
+    } else {
+      print('you have been navigate to Home page');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +86,16 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                 ),
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.cyan,
-                    ),
+                    _image != null
+                        ? CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Colors.cyan,
+                            backgroundImage: MemoryImage(_image!),
+                          )
+                        : CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Colors.cyan,
+                          ),
                     SizedBox(
                       width: 10,
                     ),
@@ -67,7 +114,9 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                             ),
                           ),
                           child: IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              pickImageFormCamera();
+                            },
                             icon: Icon(
                               Icons.camera_alt,
                               color: Colors.white,
@@ -88,7 +137,9 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                             ),
                           ),
                           child: IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              pickImageFormGallery();
+                            },
                             icon: Icon(
                               Icons.photo,
                               color: Colors.white,
@@ -164,9 +215,7 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        print(fullnameController);
-                        print(emailController);
-                        print(passwordController);
+                        signUp();
                       },
                       child: Container(
                         width: MediaQuery.of(context).size.width - 40,
@@ -178,14 +227,18 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                           ),
                         ),
                         child: Center(
-                          child: Text(
-                            'Sign up',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: isLoading
+                              ? CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  'Sign up',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
