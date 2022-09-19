@@ -1,50 +1,31 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:multi_vendor/controllers/auth_controller.dart';
-import 'package:multi_vendor/views/auth/customer_login_screen.dart';
-
+import 'package:multi_vendor/views/auth/customer_home_screen.dart';
+import 'package:multi_vendor/views/auth/landing_custommer_screen.dart';
 import '../../controllers/snackbar_controller.dart';
 
-class LandingCustommerScreen extends StatefulWidget {
-  const LandingCustommerScreen({Key? key}) : super(key: key);
+class CustomerLoginScreen extends StatefulWidget {
+  const CustomerLoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<LandingCustommerScreen> createState() => _LandingCustommerScreenState();
+  State<CustomerLoginScreen> createState() => _CustomerLoginScreenState();
 }
 
-class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
+class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
   final _authController = AuthController();
-  final TextEditingController fullnameController = new TextEditingController();
+
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
   bool passwordVisible = true;
   bool isLoading = false;
 
-  Uint8List? _image;
-
-  void pickImageFormGallery() async {
-    Uint8List im = await _authController.pickImage(ImageSource.gallery);
+  loginUsers() async {
     setState(() {
-      _image = im;
+      isLoading = true;
     });
-  }
+    String res = await _authController.loginUsers(
+        emailController.text, passwordController.text);
 
-  void pickImageFormCamera() async {
-    Uint8List im = await _authController.pickImage(ImageSource.camera);
-    setState(
-      () {
-        _image = im;
-      },
-    );
-  }
-
-  signUp() async {
-    setState(() {});
-    isLoading = true;
-    String res = await _authController.sigUpUsers(fullnameController.text,
-        emailController.text, passwordController.text, _image);
     setState(() {
       isLoading = false;
     });
@@ -55,7 +36,7 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (BuildContext context) {
-            return CustomerLoginScreen();
+            return CustomerHomeScreen();
           },
         ),
       );
@@ -76,7 +57,7 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Create custommer account",
+                      "Singn In custommer account",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -94,68 +75,9 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                 ),
                 Row(
                   children: [
-                    _image != null
-                        ? CircleAvatar(
-                            radius: 60,
-                            backgroundColor: Colors.cyan,
-                            backgroundImage: MemoryImage(_image!),
-                          )
-                        : CircleAvatar(
-                            radius: 60,
-                            backgroundColor: Colors.cyan,
-                          ),
                     SizedBox(
                       width: 10,
                     ),
-                    Column(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.cyan,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(
-                                14,
-                              ),
-                              topRight: Radius.circular(
-                                14,
-                              ),
-                            ),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              pickImageFormCamera();
-                            },
-                            icon: Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.cyan,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(
-                                14,
-                              ),
-                              topRight: Radius.circular(
-                                14,
-                              ),
-                            ),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              pickImageFormGallery();
-                            },
-                            icon: Icon(
-                              Icons.photo,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
                   ],
                 ),
                 SizedBox(
@@ -163,18 +85,6 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                 ),
                 Column(
                   children: [
-                    TextFormField(
-                      controller: fullnameController,
-                      decoration: InputDecoration(
-                        labelText: "Full-Name",
-                        hintText: "Enter your full name",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            15,
-                          ),
-                        ),
-                      ),
-                    ),
                     SizedBox(height: 15),
                     TextFormField(
                       controller: emailController,
@@ -219,11 +129,11 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                       ),
                     ),
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     GestureDetector(
                       onTap: () {
-                        signUp();
+                        loginUsers();
                       },
                       child: Container(
                         width: MediaQuery.of(context).size.width - 40,
@@ -240,7 +150,7 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                                   color: Colors.white,
                                 )
                               : Text(
-                                  'Sign up',
+                                  'Sign in',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -257,7 +167,7 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Already have an account ?',
+                          'Need an account ?',
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.black,
@@ -269,13 +179,13 @@ class _LandingCustommerScreenState extends State<LandingCustommerScreen> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (BuildContext context) {
-                                  return CustomerLoginScreen();
+                                  return LandingCustommerScreen();
                                 },
                               ),
                             );
                           },
                           child: Text(
-                            'Login',
+                            'Sign up',
                           ),
                         ),
                       ],

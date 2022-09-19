@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_vendor/views/auth/customer_home_screen.dart';
+import 'package:multi_vendor/views/auth/customer_login_screen.dart';
 import 'package:multi_vendor/views/auth/landing_custommer_screen.dart';
 
 void main() async {
@@ -20,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const LandingCustommerScreen(),
+      home: const CustomerHomeScreen(),
     );
   }
 }
